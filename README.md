@@ -27,7 +27,7 @@ Manager your passwords offline with this simple GUI
 Just clone the project and run
 
 ```
-> Python main.py
+> python main.py
 ```
 
 ## 🎈 Usage <a name="usage"></a>
