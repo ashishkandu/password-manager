@@ -4,6 +4,9 @@ from random import shuffle, choice, randint
 from pyperclip import copy
 import json
 from json.decoder import JSONDecodeError
+
+FILENAME = "password.json"
+
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
 #Password Generator Project
@@ -51,23 +54,41 @@ def save() -> None:
 
     if is_ok:
         try:
-            with open("password.json", "r") as file_handler:
+            with open(FILENAME, "r") as file_handler:
                 data = json.load(file_handler)
         except FileNotFoundError:
-            with open("password.json", "w") as fh:
+            with open(FILENAME, "w") as fh:
                 json.dump(new_data, fh, indent=2)
         except JSONDecodeError:
-            with open("password.json", "w") as fh:
+            with open(FILENAME, "w") as fh:
                 json.dump(new_data, fh, indent=2)
         else:
             # Updating old data with new data
             data.update(new_data)
         
-            with open("password.json", "w") as fh:
+            with open(FILENAME, "w") as fh:
                 json.dump(data, fh, indent=2)       
         finally:
                 website_entry.delete(0, END)
                 password_entry.delete(0, END)
+
+# ---------------------------- FIND PASSWORD ------------------------------- #
+
+def find_password():
+    website = website_entry.get()
+    try:
+        with open(FILENAME) as fh:
+            data = json.load(fh)
+    except FileNotFoundError:
+        messagebox.showerror(title='ERROR', message='No data found!')
+    else:
+        if website in data:
+            email = data.get(website)['email']
+            password = data.get(website)['password']
+            messagebox.showinfo(title=website, message=f"Email: {email}\nPassword: {password}")
+        else:
+            messagebox.showerror(title="ERROR", message=f"No details for {website} exists.")
+
 
 # ---------------------------- UI SETUP ------------------------------- #
 
@@ -89,8 +110,8 @@ password_label = Label(text="Password:")
 password_label.grid(row=3, column=0)
 
 # Entries
-website_entry = Entry(width=40)
-website_entry.grid(row=1, column=1, columnspan=2)
+website_entry = Entry(width=24)
+website_entry.grid(row=1, column=1)
 website_entry.focus()
 email_entry = Entry(width=40)
 email_entry.grid(row=2, column=1, columnspan=2)
@@ -103,5 +124,7 @@ generate_password_button = Button(text="Generate Pass", command=password_generat
 generate_password_button.grid(row=3, column=2)
 add_button = Button(text="Add", width=36, command=save)
 add_button.grid(row=4, column=1, columnspan=2)
+search_button = Button(text="Search", width=13, command=find_password)
+search_button.grid(row=1, column=2)
 
 window.mainloop()
