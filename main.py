@@ -3,7 +3,7 @@ from tkinter import messagebox
 from random import shuffle, choice, randint
 from pyperclip import copy
 import json
-
+from json.decoder import JSONDecodeError
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
 #Password Generator Project
@@ -50,14 +50,24 @@ def save() -> None:
                                    f"\nPassword: {password} \nIs it ok to save?")
 
     if is_ok:
-        with open("password.json", "r") as file_handler:
-            data = json.load(file_handler)
+        try:
+            with open("password.json", "r") as file_handler:
+                data = json.load(file_handler)
+        except FileNotFoundError:
+            with open("password.json", "w") as fh:
+                json.dump(new_data, fh, indent=2)
+        except JSONDecodeError:
+            with open("password.json", "w") as fh:
+                json.dump(new_data, fh, indent=2)
+        else:
+            # Updating old data with new data
             data.update(new_data)
-        with open("password.json", "w") as fh:
-            json.dump(data, fh, indent=2)
         
-        website_entry.delete(0, END)
-        password_entry.delete(0, END)
+            with open("password.json", "w") as fh:
+                json.dump(data, fh, indent=2)       
+        finally:
+                website_entry.delete(0, END)
+                password_entry.delete(0, END)
 
 # ---------------------------- UI SETUP ------------------------------- #
 
